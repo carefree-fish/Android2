@@ -9,6 +9,7 @@ import androidx.fragment.app.FragmentTransaction;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
+//import android.view.SurfaceControl;
 import android.view.View;
 //import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -79,34 +80,63 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+//     尝试1：失败
+//    protected void onSaveInstanceState(Bundle outState) {
+//        FragmentTransaction transaction = manager.beginTransaction();
+//        transaction.remove(fragment1);
+//        transaction.remove(fragment2);
+//        transaction.remove(fragment3);
+//        transaction.remove(fragment4);
+//        transaction.commitAllowingStateLoss();
+//        super.onSaveInstanceState(outState);
+//    }
+//      尝试2：onAttachFragment被弃用需用新方法，未找到
+//    @Override
+//    public void onAttachFragment(Fragment fragment) {
+//        if (tab1 == null && fragment instanceof Tab1Fragment)
+//            tab1 = fragment;
+//        if (tab2 == null && fragment instanceof Tab2Fragment)
+//            tab2 = fragment;
+//        if (tab3 == null && fragment instanceof Tab3Fragment)
+//            tab3 = fragment;
+//        if (tab4 == null && fragment instanceof Tab4Fragment)
+//            tab4 = fragment;
+//    }
+
     private void select(int i) {    //选择展示界面,更改相应image
-        hidden();
-        switch(i){
-            case 1:
-                Log.d("right","界面1");
-                showfragment(fragment1);
-                darken();
-                imageView1.setImageResource(R.drawable._12);//相应image变深色
-                break;
-            case 2:
-                Log.d("right","界面2");
-                showfragment(fragment2);
-                darken();
-                imageView2.setImageResource(R.drawable._22);
-                break;
-            case 3:
-                Log.d("right","界面3");
-                showfragment(fragment3);
-                darken();
-                imageView3.setImageResource(R.drawable._32);
-                break;
-            case 4:
-                Log.d("right","界面4");
-                showfragment(fragment4);
-                darken();
-                imageView4.setImageResource(R.drawable._42);
-                break;
-        }
+        FragmentTransaction transaction=manager.beginTransaction();
+        hid_show(transaction);
+            switch(i){
+                case 1:
+                    Log.d("right","界面1");
+                    //hid_show(transaction,fragment1);
+                    showfragment(transaction,fragment1);
+                    darken();
+                    imageView1.setImageResource(R.drawable._12);//相应image变深色
+                    break;
+                case 2:
+                    Log.d("right","界面2");
+                    //hid_show(transaction,fragment2);
+                    showfragment(transaction,fragment2);
+                    darken();
+                    imageView2.setImageResource(R.drawable._22);
+                    break;
+                case 3:
+                    Log.d("right","界面3");
+                    //hid_show(transaction,fragment3);
+                    showfragment(transaction,fragment3);
+                    darken();
+                    imageView3.setImageResource(R.drawable._32);
+                    break;
+                case 4:
+                    Log.d("right","界面4");
+                    //hid_show(transaction,fragment4);
+                    showfragment(transaction,fragment4);
+                    darken();
+                    imageView4.setImageResource(R.drawable._42);
+                    break;
+            }
+        transaction.commit();
     }
 
     private void darken(){      //其他image复原
@@ -116,26 +146,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         imageView4.setImageResource(R.drawable._41);
     }
 
-    private void hidden() {     //隐藏界面
-        manager.beginTransaction()
-                .hide(fragment1)
+    private void hid_show(FragmentTransaction transaction) {     //隐藏界面
+        transaction.hide(fragment1)
                 .hide(fragment2)
                 .hide(fragment3)
-                .hide(fragment4)
-                .commit();
+                .hide(fragment4);
+                //.show(fragment);
+               // .commit();
     }
-/**   或  ransaction=manager.beginTransaction()
-                .hide()
-                .hide()
-                .hide()
-                .hide();
-        transaction.commit;
-**/
+//   或  transaction=manager.beginTransaction()
+//                .hide()
+//                .hide()
+//                .hide()
+//                .hide();
+//        transaction.commit;
 
-    private void showfragment(Fragment fragment) {  //显式界面
-        manager.beginTransaction()
-                .show(fragment)
-                .commit();
+
+    private void showfragment(FragmentTransaction transaction,Fragment fragment) {  //显式界面
+        transaction.show(fragment);
     }
 
 }
@@ -153,3 +181,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //开放所以      界面1未隐藏，需调试
 //改为select3 ，发现界面1似乎被设为背景板
 //问题：1.界面1不消失   2.界面2不显示recyclerView  报错：E/RecyclerView: No adapter attached; skipping layout
+//问题1：初始界面设为 除fragment1的fragment时，界面1仍然未被隐藏
+//问题2解决：recyclerView显式了，但是间距太大，因为adapter里设置成了match——parent，改为wrap——content即可
+//问题1：初步判断问题为，每次切换fragment，commit了两次
+//与业务处理应该没有关系
+//即使初始界面为2,1仍会作为背景
+//之后进行了两次尝试：尝试1，尝试2  未解决

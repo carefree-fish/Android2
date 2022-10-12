@@ -78,7 +78,7 @@ public class Fragment2 extends Fragment {
         this.view =inflater.inflate(R.layout.tab_2,container,false);//tab_2压缩为view
         recyclerView = view.findViewById(R.id.a);   //找到tab_2里的recyclerView
 
-        for(int i=0;i<9;i++) {
+        for(int i=0;i<20;i++) {
             list.add("this is No."+i+" friend");
         }
 
